@@ -1,0 +1,39 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .app-background {
+    position: relative;
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+  }
+  
+  .overlay {
+    background-image: url('/image1.jpg');
+    background-size: cover; /* Ensure the image covers the entire background */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent repeating of the image */
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    /* opacity: 0.5; Adjust transparency level here (0.0 to 1.0) */
+    z-index: -1; /* Ensure it stays behind the content */
+  }
+  
+  .main-content {
+    position: relative;
+    z-index: 1; /* Ensure content is above the background */
+  }
+  
+  .transparent-box {
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+    border-radius: 8px; /* Optional: for rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: add shadow for better visibility */
+  }
+  

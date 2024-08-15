@@ -1,0 +1,25 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .home-background {
+    background-image: url('https://getwallpapers.com/wallpaper/full/e/c/c/854761-download-google-homepage-wallpaper-1920x1080.jpg');
+    background-size: cover; /* Ensure the image covers the entire background */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent repeating of the image */
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+  }
+  
+  .home-content {
+    text-align: left; /* Center text and buttons */
+    color: white; /* Ensure text is readable against the background */
+    padding: 20px; /* Add padding if necessary */
+  }
+  
