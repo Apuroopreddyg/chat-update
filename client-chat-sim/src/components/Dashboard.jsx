@@ -1,24 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ListGroup, Container, Row, Col, Card, Button, Modal, Form } from 'react-bootstrap';
+import { ListGroup, Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import io from 'socket.io-client';
-import {jwtDecode} from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 import CryptoJS from 'crypto-js';
 import './Dashboard.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-// Set up Socket.io client
-const socket = io(`${apiUrl}`, {
-  transports: ['websocket', 'polling'],
-});
-
-// Encryption setup
+const socket = io(`${apiUrl}`, { transports: ['websocket', 'polling'] });
 const secretKey = 'mymessage';
 
-const encryptMessage = (message) => {
-  return CryptoJS.AES.encrypt(message, secretKey).toString();
-};
-
+const encryptMessage = (message) => CryptoJS.AES.encrypt(message, secretKey).toString();
 const decryptMessage = (encryptedMessage) => {
   const bytes = CryptoJS.AES.decrypt(encryptedMessage, secretKey);
   return bytes.toString(CryptoJS.enc.Utf8);
@@ -29,7 +21,6 @@ function Dashboard() {
   const [messages, setMessages] = useState([]);
   const [selectedContact, setSelectedContact] = useState('');
   const [userName, setUserName] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [messageContent, setMessageContent] = useState('');
   const [unreadMessages, setUnreadMessages] = useState({});
 
@@ -48,26 +39,24 @@ function Dashboard() {
     }
 
     fetch(`${apiUrl}/contacts`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
-      .then((response) => response.json())
-      .then((data) => setContacts(data))
-      .catch((error) => console.error('Error fetching contacts:', error));
+      .then(response => response.json())
+      .then(data => setContacts(data))
+      .catch(error => console.error('Error fetching contacts:', error));
 
     socket.on('receiveMessage', (message) => {
       message.content = decryptMessage(message.content);
 
       if (message.sender !== selectedContact) {
-        setUnreadMessages((prevUnread) => ({
+        setUnreadMessages(prevUnread => ({
           ...prevUnread,
           [message.sender]: true,
         }));
       }
 
       if (selectedContact && (message.sender === selectedContact || message.recipient === selectedContact)) {
-        setMessages((prevMessages) => [...prevMessages, message]);
+        setMessages(prevMessages => [...prevMessages, message]);
       }
     });
 
@@ -80,24 +69,22 @@ function Dashboard() {
     setSelectedContact(contactName);
 
     fetch(`${apiUrl}/messages/${contactName}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
-      .then((response) => response.json())
-      .then((data) => {
-        const decryptedMessages = data.map((message) => ({
+      .then(response => response.json())
+      .then(data => {
+        const decryptedMessages = data.map(message => ({
           ...message,
           content: decryptMessage(message.content),
         }));
         setMessages(decryptedMessages);
 
-        setUnreadMessages((prevUnread) => ({
+        setUnreadMessages(prevUnread => ({
           ...prevUnread,
           [contactName]: false,
         }));
       })
-      .catch((error) => console.error('Error fetching messages:', error));
+      .catch(error => console.error('Error fetching messages:', error));
   };
 
   const handleSendMessage = () => {
@@ -118,10 +105,8 @@ function Dashboard() {
         ...message,
         content: messageContent,
       };
-      setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
-
+      setMessages(prevMessages => [...prevMessages, decryptedMessage]);
       setMessageContent('');
-      setShowModal(false);
     }
   };
 
@@ -152,33 +137,27 @@ function Dashboard() {
           <h1>Welcome, {userName}</h1>
         </Col>
         <Col className="text-right">
-          <Button variant="danger" onClick={handleLogout}>
-            Logout
-          </Button>
+          <Button variant="danger" onClick={handleLogout}>Logout</Button>
         </Col>
       </Row>
       <Row>
         <Col md={4} className="mb-3">
           <Card>
-            <Card.Header>
-              <h4>Contacts</h4>
-            </Card.Header>
+            <Card.Header><h4>Contacts</h4></Card.Header>
             <ListGroup variant="flush">
-              {contacts
-                .filter(contact => contact.name !== userName)
-                .map((contact) => (
-                  <ListGroup.Item
-                    key={contact.name}
-                    action
-                    onClick={() => handleContactClick(contact.name)}
-                    style={{ cursor: 'pointer', position: 'relative' }}
-                  >
-                    {contact.name}
-                    {unreadMessages[contact.name] && contact.name !== selectedContact && (
-                      <span className="notification-dot"></span>
-                    )}
-                  </ListGroup.Item>
-                ))}
+              {contacts.filter(contact => contact.name !== userName).map(contact => (
+                <ListGroup.Item
+                  key={contact.name}
+                  action
+                  onClick={() => handleContactClick(contact.name)}
+                  style={{ cursor: 'pointer', position: 'relative' }}
+                >
+                  {contact.name}
+                  {unreadMessages[contact.name] && contact.name !== selectedContact && (
+                    <span className="notification-dot"></span>
+                  )}
+                </ListGroup.Item>
+              ))}
             </ListGroup>
           </Card>
         </Col>
@@ -192,12 +171,10 @@ function Dashboard() {
                 <Card.Body>
                   <div className="message-container">
                     {messages.length > 0 ? (
-                      messages.map((message) => (
+                      messages.map(message => (
                         <div
                           key={message._id}
-                          className={`message ${
-                            message.sender === userName ? 'sent' : 'received'
-                          }`}
+                          className={`message ${message.sender === userName ? 'sent' : 'received'}`}
                         >
                           <p>{message.content}</p>
                           <small>{formatDate(message.timestamp)}</small>
@@ -209,9 +186,19 @@ function Dashboard() {
                   </div>
                 </Card.Body>
               </Card>
-              <Button className="mt-3" onClick={() => setShowModal(true)}>
-                Send Message
-              </Button>
+              <div className="message-input-bar">
+                <Form.Control
+                  className="message-input"
+                  as="textarea"
+                  rows={2}
+                  value={messageContent}
+                  onChange={(e) => setMessageContent(e.target.value)}
+                  placeholder="Type your message here..."
+                />
+                <Button className="send-button" onClick={handleSendMessage}>
+                  Send
+                </Button>
+              </div>
             </>
           ) : (
             <Card>
@@ -222,35 +209,6 @@ function Dashboard() {
           )}
         </Col>
       </Row>
-
-      {/* Message Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Send Message</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="messageContent">
-              <Form.Label>Message</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={messageContent}
-                onChange={(e) => setMessageContent(e.target.value)}
-                placeholder="Type your message here..."
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSendMessage}>
-            Send
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }
